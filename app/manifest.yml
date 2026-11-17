@@ -112,6 +112,13 @@ modules:
         - list-flaky-tests
         - explain-test
         - list-recent-runs
+  jira:globalPage:
+    - key: flakelens-dashboard
+      resource: dashboard
+      resolver:
+        function: dashboard-resolver
+      render: native
+      title: FlakeLens
   webtrigger:
     - key: ingest-junit
       function: ingestJUnit
@@ -129,6 +136,11 @@ modules:
       handler: index.fileFlakyIssue
     - key: ingestJUnit
       handler: index.ingestJUnit
+    - key: dashboard-resolver
+      handler: resolver.handler
+resources:
+  - key: dashboard
+    path: src/frontend/index.jsx
 permissions:
   scopes:
     - storage:app

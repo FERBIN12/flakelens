@@ -25,6 +25,9 @@ Then you just ask Rovo: *"Which tests are flaky in demo-shop, and is anything ac
   `file-flaky-issue` (creates a Bug, or a Task if the project has no Bug type, labelled `flakelens`; if FlakeLens
   already filed one for that test it adds a comment with the new evidence instead of a duplicate).
 - **Rovo MCP module `flakelens-mcp`** exposing the three read-only tools to MCP clients.
+- **Jira global page "FlakeLens"** (UI Kit, `app/src/frontend/index.jsx` + resolver `app/src/resolver.js`): project
+  picker, totals, a passed/failed bar per CI run, and the ranked flaky/regression table with the evidence line for
+  each test. It reads the same stored data as the agent, so the page and Rovo always agree.
 - **Forge KVS storage**: last 50 observations per test, last 30 runs per project.
 - Dependency-free JUnit parser (Jest/pytest/Surefire/Node test runner style reports), no XML entity expansion.
 
