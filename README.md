@@ -41,6 +41,26 @@ below) and saves every report to `app/src/sample/sample_runs.js`. Then ask the F
 
 ![Dashboard after Load sample data](https://github.com/FERBIN12/flakelens/releases/download/media-v2/sample_loaded.png)
 
+
+## Use it from any MCP client (Claude Code, Cursor, ...)
+
+The `rovo:mcp` module exposes the three read-only tools outside Atlassian, through Atlassian's Forge MCP endpoint:
+
+```
+https://mcp.atlassian.com/forge/f4b87f81-c151-4fec-92ae-c733a7b23e0f
+```
+
+1. A site admin turns it on once (it is off by default): **admin.atlassian.com > your site > Connected apps >
+   FlakeLens > Details > Tools > Enable tools**.
+2. Add the server to your client, for example Claude Code:
+   `claude mcp add --transport http flakelens https://mcp.atlassian.com/forge/f4b87f81-c151-4fec-92ae-c733a7b23e0f`
+3. The client opens Atlassian's OAuth consent page; pick your site and press **Accept**.
+
+Verified on 2026-11-17 with an OAuth 2.1 (dynamic client registration + PKCE) client over Streamable HTTP:
+`tools/list` returned `list-flaky-tests`, `explain-test` and `list-recent-runs` (Atlassian appends the environment,
+for example `_development`), and `list-flaky-tests` on `sample-demo-shop` returned the same ranking as the Jira page
+(9 tests, 12 runs, top flaky test `inventory.test.js::lookup is fast enough`, score 74).
+
 ## Run it yourself (3 commands)
 
 ```bash
