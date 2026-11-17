@@ -5,6 +5,8 @@
 import Resolver from '@forge/resolver';
 import { forgeStore } from './store.js';
 import { flakyReport, runsKey, safe, PROJECTS_KEY } from './core/ingest.js';
+import { loadSample } from './core/sample.js';
+import sampleBundle from './sample/sample_runs.js';
 
 const resolver = new Resolver();
 
@@ -16,5 +18,8 @@ resolver.define('getDashboard', async ({ payload }) => {
   const runs = ((await forgeStore.get(runsKey(project))) || []).slice(-20);
   return { projects, project, report, runs };
 });
+
+// "Load sample data" button: real bundled demo-shop runs into project sample-demo-shop (duplicates skipped).
+resolver.define('loadSample', async () => loadSample(forgeStore, sampleBundle));
 
 export const handler = resolver.getDefinitions();

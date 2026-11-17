@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ForgeReconciler, {
-  Box, DynamicTable, EmptyState, Heading, Inline, Lozenge, Select, SectionMessage, Spinner, Stack,
+  Box, Button, DynamicTable, EmptyState, Heading, Inline, Lozenge, Select, SectionMessage, Spinner, Stack,
   StackBarChart, Strong, Text, Tooltip, xcss,
 } from '@forge/react';
 import { invoke } from '@forge/bridge';
@@ -30,18 +30,29 @@ function App() {
   const [data, setData] = useState(null);
   const [project, setProject] = useState(undefined);
   const [error, setError] = useState('');
+  const [reload, setReload] = useState(0);
+  const [loadingSample, setLoadingSample] = useState(false);
 
   useEffect(() => {
     setData(null);
     invoke('getDashboard', { project }).then(setData).catch((e) => setError(String(e && e.message ? e.message : e)));
-  }, [project]);
+  }, [project, reload]);
+
+  const onLoadSample = () => {
+    setLoadingSample(true);
+    invoke('loadSample')
+      .then((r) => { setProject(r.project); setReload((n) => n + 1); })
+      .catch((e) => setError(String(e && e.message ? e.message : e)))
+      .finally(() => setLoadingSample(false));
+  };
 
   if (error) return <SectionMessage appearance="error"><Text>Could not load FlakeLens data: {error}</Text></SectionMessage>;
   if (!data) return <Spinner label="Loading FlakeLens" />;
   if (!data.project) {
     return (
       <EmptyState header="No CI data yet"
-        description="Add the FlakeLens upload step to your CI so each test run POSTs its JUnit XML report to the FlakeLens web trigger." />
+        description="Add the FlakeLens upload step to your CI so each test run POSTs its JUnit XML report to the FlakeLens web trigger. Or load 12 real sample runs of a small demo shop to see it work now."
+        primaryAction={<Button appearance="primary" isLoading={loadingSample} onClick={onLoadSample}>Load sample data</Button>} />
     );
   }
   const { report, runs } = data;
@@ -88,6 +99,12 @@ function App() {
       <DynamicTable head={head} rows={rows} rowsPerPage={10}
         emptyView="No flaky tests or regressions in the stored runs." />
       <Text size="small">Ask the FlakeLens Triage agent in Rovo to explain a test or file a Jira issue with this evidence.</Text>
+      {!data.projects.includes('sample-demo-shop') && (
+        <Inline space="space.100" alignBlock="center">
+          <Button appearance="subtle" isLoading={loadingSample} onClick={onLoadSample}>Load sample data</Button>
+          <Text size="small">Adds 12 real runs of the bundled demo shop as a separate project, sample-demo-shop.</Text>
+        </Inline>
+      )}
     </Stack>
   );
 }

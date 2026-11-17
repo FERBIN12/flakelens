@@ -31,10 +31,20 @@ Then you just ask Rovo: *"Which tests are flaky in demo-shop, and is anything ac
 - **Forge KVS storage**: last 50 observations per test, last 30 runs per project.
 - Dependency-free JUnit parser (Jest/pytest/Surefire/Node test runner style reports), no XML entity expansion.
 
-## Try it (3 commands)
+## Try it without any CI (2 minutes)
+
+Install FlakeLens on a Jira site, open **Apps > FlakeLens** and press **Load sample data**. It ingests 12 bundled
+JUnit reports into a separate project called `sample-demo-shop`. These are real reports, not hand-written: they were
+produced by `scripts/make_sample_bundle.sh`, which runs the `demo-shop` suite 4 times on each of its 3 commits (see
+below) and saves every report to `app/src/sample/sample_runs.js`. Then ask the FlakeLens Triage agent in Rovo
+*"Which tests are flaky in sample-demo-shop?"*. Pressing the button again changes nothing (run ids are de-duplicated).
+
+![Dashboard after Load sample data](https://github.com/FERBIN12/flakelens/releases/download/media-v2/sample_loaded.png)
+
+## Run it yourself (3 commands)
 
 ```bash
-cd app && npm install && npm test             # 15 unit tests: parser, classifier, ingest, issue text
+cd app && npm install && npm test             # 16 unit tests: parser, classifier, ingest, issue text, sample data
 forge deploy -e development && forge install -e development --product jira --site <your-site>.atlassian.net
 forge variables set --encrypt -e development FLAKELENS_INGEST_TOKEN <random-32-chars> && forge deploy -e development
 ```
