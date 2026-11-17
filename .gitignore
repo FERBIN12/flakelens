@@ -1,0 +1,19 @@
+# never commit: local tooling, credentials, media, build output
+node_modules/
+forge-cli/
+tools/
+shots/
+forge_env.sh
+PLAN.md
+STATE.md
+.env
+*.xml
+!app/test/fixtures/*.xml
+*.png
+*.jpg
+*.gif
+*.mp4
+*.mov
+*.wav
+*.mp3
+dist/

@@ -1,0 +1,15 @@
+{
+  "name": "flakelens",
+  "version": "0.1.0",
+  "description": "Forge app + Rovo agent + MCP tools that find flaky tests in CI JUnit reports and file Jira issues",
+  "main": "index.js",
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "@forge/api": "^8.5.0",
+    "@forge/kvs": "^2.1.2"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.js'"
+  }
+}

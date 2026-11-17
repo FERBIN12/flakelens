@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- pytest style report -->
+<testsuites>
+  <testsuite name="pytest" tests="4" failures="1" errors="1" skipped="1">
+    <testcase classname="tests.test_api" name="test_login" time="0.120"/>
+    <testcase classname="tests.test_api" name="test_upload" time="2.5">
+      <failure message="TimeoutError: upload took &gt; 2s">Traceback (most recent call last):
+  File "tests/test_api.py", line 40</failure>
+    </testcase>
+    <testcase classname="tests.test_db" name="test_migrate" time="1"><error type="ConnectionError"><![CDATA[
+psql: could not connect <host>
+]]></error></testcase>
+    <testcase classname="tests.test_db" name="test_slow"><skipped message="slow"/></testcase>
+  </testsuite>
+</testsuites>

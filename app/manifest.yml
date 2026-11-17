@@ -1,0 +1,142 @@
+modules:
+  rovo:agent:
+    - key: flakelens-triage-agent
+      name: FlakeLens Triage
+      description: Finds flaky and regressed tests from your CI JUnit reports and files evidence-backed Jira issues.
+      prompt: >
+        You are FlakeLens Triage, an assistant for software teams who want to stop wasting time on flaky tests.
+
+        Data comes only from JUnit XML reports that CI uploaded to the FlakeLens web trigger. Never invent test
+        names, runs, commits or numbers: every fact you state must come from an action result.
+
+        Use list-flaky-tests to answer questions like "which tests are flaky?" or "what should we fix first?".
+        Present results as a short ranked list: test id, verdict (flaky or broken/regression), score, and the reason.
+        A "broken" test failed several runs in a row after passing: call it a regression and name the first failing run.
+
+        Use explain-test when the user asks about one test; summarise the evidence and show the recent runs.
+        Use list-recent-runs for questions about builds or CI runs.
+
+        Only call file-flaky-issue when the user asks to file or track an issue. If they did not give a Jira
+        project key, ask for it. After filing, give the issue key.
+
+        If there is no data yet, explain that CI must POST JUnit XML to the FlakeLens web trigger first.
+      conversationStarters:
+        - Which tests are flaky this week?
+        - What should we fix first in CI?
+        - Show the recent CI runs
+      actions:
+        - list-flaky-tests
+        - explain-test
+        - list-recent-runs
+        - file-flaky-issue
+  action:
+    - key: list-flaky-tests
+      name: List flaky tests
+      function: listFlakyTests
+      actionVerb: GET
+      description: >
+        Returns the flaky and regressed (broken) tests of a CI project, ranked worst first, with the evidence
+        for each verdict. Also returns the list of known CI projects.
+      inputs:
+        project:
+          title: CI project
+          type: string
+          required: false
+          description: The CI project name used when uploading reports. Leave empty to use the default project.
+        limit:
+          title: Limit
+          type: integer
+          required: false
+          description: Maximum number of tests to return (default 10).
+    - key: explain-test
+      name: Explain a test
+      function: explainTest
+      actionVerb: GET
+      description: >
+        Returns the verdict (flaky, broken or healthy), reason and last 10 runs for one test, matched by its
+        full id or part of its name.
+      inputs:
+        project:
+          title: CI project
+          type: string
+          required: false
+          description: The CI project name. Leave empty for the default project.
+        test:
+          title: Test
+          type: string
+          required: true
+          description: The test id (classname::name) or part of the test name.
+    - key: list-recent-runs
+      name: List recent CI runs
+      function: listRecentRuns
+      actionVerb: GET
+      description: Returns the most recent CI runs stored by FlakeLens with commit, branch and pass/fail counts.
+      inputs:
+        project:
+          title: CI project
+          type: string
+          required: false
+          description: The CI project name. Leave empty for the default project.
+        limit:
+          title: Limit
+          type: integer
+          required: false
+          description: Maximum number of runs (default 10).
+    - key: file-flaky-issue
+      name: File a flaky test issue
+      function: fileFlakyIssue
+      actionVerb: CREATE
+      description: >
+        Creates a Jira issue for a flaky or regressed test with its evidence, or adds a comment with fresh
+        evidence if FlakeLens already filed one for that test.
+      inputs:
+        project:
+          title: CI project
+          type: string
+          required: false
+          description: The CI project name. Leave empty for the default project.
+        test:
+          title: Test
+          type: string
+          required: true
+          description: The test id or part of the test name.
+        jiraProject:
+          title: Jira project key
+          type: string
+          required: true
+          description: Key of the Jira project to file the issue in, for example KAN.
+  rovo:mcp:
+    - key: flakelens-mcp
+      name: FlakeLens MCP
+      tools:
+        - list-flaky-tests
+        - explain-test
+        - list-recent-runs
+  webtrigger:
+    - key: ingest-junit
+      function: ingestJUnit
+      urlFormat: v2
+      response:
+        type: dynamic
+  function:
+    - key: listFlakyTests
+      handler: index.listFlakyTests
+    - key: explainTest
+      handler: index.explainTest
+    - key: listRecentRuns
+      handler: index.listRecentRuns
+    - key: fileFlakyIssue
+      handler: index.fileFlakyIssue
+    - key: ingestJUnit
+      handler: index.ingestJUnit
+permissions:
+  scopes:
+    - storage:app
+    - read:jira-work
+    - write:jira-work
+app:
+  runtime:
+    name: nodejs24.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/f4b87f81-c151-4fec-92ae-c733a7b23e0f
